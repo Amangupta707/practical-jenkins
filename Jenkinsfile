@@ -33,7 +33,7 @@ pipeline {
                 echo 'Running Trivy vulnerability scan...'
                 sh '''
                     mkdir -p trivy-reports
-                    trivy fs --format html -o trivy-reports/trivy-report.html .
+                    trivy fs --format json -o trivy-reports/trivy-report.json .
                 '''
             }
             post {
