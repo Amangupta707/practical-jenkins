@@ -38,7 +38,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: 'trivy-reports/trivy-report.html', fingerprint: true
+                    archiveArtifacts artifacts: 'trivy-reports/trivy-report.json', fingerprint: true
                 }
             }
         }
