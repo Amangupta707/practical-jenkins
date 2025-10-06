@@ -11,9 +11,9 @@ pipeline {
         stage('Install') {
             steps {
                 sh '''
-                    python3 -m venv venv        # create virtual environment
-                    . venv/bin/activate         # activate it
-                    pip install --upgrade pip   # upgrade pip
+                    python3 -m venv venv
+                    . venv/bin/activate
+                    pip install --upgrade pip
                     pip install -r requirements.txt
                 '''
             }
@@ -27,5 +27,21 @@ pipeline {
                 '''
             }
         }
+
+        stage('Trivy Scan') {
+            steps {
+                echo 'Running Trivy vulnerability scan...'
+                sh '''
+                    mkdir -p trivy-reports
+                    trivy fs --format html -o trivy-reports/trivy-report.html .
+                '''
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'trivy-reports/trivy-report.html', fingerprint: true
+                }
+            }
+        }
     }
 }
+
