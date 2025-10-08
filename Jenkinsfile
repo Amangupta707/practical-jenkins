@@ -10,10 +10,10 @@ pipeline {
 
         stage('Install') {
             steps {
-                sh '''
-                    python3 -m venv venv
-                    . venv/bin/activate
-                    pip install --upgrade pip
+                bat '''
+                    python -m venv venv
+                    call venv\\Scripts\\activate
+                    python -m pip install --upgrade pip
                     pip install -r requirements.txt
                 '''
             }
@@ -21,8 +21,8 @@ pipeline {
 
         stage('Test') {
             steps {
-                sh '''
-                    . venv/bin/activate
+                bat '''
+                    call venv\\Scripts\\activate
                     pytest --maxfail=1 --disable-warnings -q
                 '''
             }
@@ -31,17 +31,16 @@ pipeline {
         stage('Trivy Scan') {
             steps {
                 echo 'Running Trivy vulnerability scan...'
-                sh '''
-                    mkdir -p trivy-reports
-                    trivy fs --format json -o trivy-reports/trivy-report.json .
+                bat '''
+                    mkdir trivy-reports
+                    "C:\\Users\\Admin\\AppData\\Local\\Microsoft\\WinGet\\Packages\\AquaSecurity.Trivy_Microsoft.Winget.Source_8wekyb3d8bbwe\\trivy.exe" fs --format json -o trivy-reports\\trivy-report.json .
                 '''
             }
             post {
                 always {
-                    archiveArtifacts artifacts: 'trivy-reports/trivy-report.json', fingerprint: true
+                    archiveArtifacts artifacts: 'trivy-reports\\trivy-report.json', fingerprint: true
                 }
             }
         }
     }
 }
-
