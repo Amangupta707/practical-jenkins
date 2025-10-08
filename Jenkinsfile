@@ -10,10 +10,10 @@ pipeline {
 
         stage('Install') {
             steps {
-                bat '''
-                    python -m venv venv
-                    call venv\\Scripts\\activate
-                    python -m pip install --upgrade pip
+                sh '''
+                    python3 -m venv venv
+                    . venv/bin/activate
+                    pip install --upgrade pip
                     pip install -r requirements.txt
                 '''
             }
@@ -21,9 +21,21 @@ pipeline {
 
         stage('Test') {
             steps {
-                bat '''
-                    call venv\\Scripts\\activate
+                sh '''
+                    . venv/bin/activate
                     pytest --maxfail=1 --disable-warnings -q
+                '''
+            }
+        }
+
+        stage('Install Trivy') {
+            steps {
+                sh '''
+                    echo "Installing Trivy..."
+                    sudo apt-get update -y
+                    sudo apt-get install wget -y
+                    wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.65.0_Linux-64bit.deb
+                    sudo dpkg -i trivy_0.65.0_Linux-64bit.deb
                 '''
             }
         }
@@ -31,14 +43,14 @@ pipeline {
         stage('Trivy Scan') {
             steps {
                 echo 'Running Trivy vulnerability scan...'
-                bat '''
-                    mkdir trivy-reports
-                    "C:\\Users\\Admin\\AppData\\Local\\Microsoft\\WinGet\\Packages\\AquaSecurity.Trivy_Microsoft.Winget.Source_8wekyb3d8bbwe\\trivy.exe" fs --format json -o trivy-reports\\trivy-report.json .
+                sh '''
+                    mkdir -p trivy-reports
+                    trivy fs --format json -o trivy-reports/trivy-report.json .
                 '''
             }
             post {
                 always {
-                    archiveArtifacts artifacts: 'trivy-reports\\trivy-report.json', fingerprint: true
+                    archiveArtifacts artifacts: 'trivy-reports/trivy-report.json', fingerprint: true
                 }
             }
         }
