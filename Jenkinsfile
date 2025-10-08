@@ -30,12 +30,18 @@ pipeline {
 
         stage('Install Trivy') {
             steps {
+                echo 'Installing Trivy vulnerability scanner...'
                 sh '''
-                    echo "Installing Trivy..."
-                    sudo apt-get update -y
-                    sudo apt-get install wget -y
-                    wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.65.0_Linux-64bit.deb
-                    sudo dpkg -i trivy_0.65.0_Linux-64bit.deb
+                    set -e
+                    if ! command -v trivy >/dev/null 2>&1; then
+                        echo "Trivy not found, installing..."
+                        sudo apt-get update -y
+                        sudo apt-get install -y wget
+                        wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.65.0_Linux-64bit.deb
+                        sudo dpkg -i trivy_0.65.0_Linux-64bit.deb
+                    else
+                        echo "Trivy is already installed."
+                    fi
                 '''
             }
         }
