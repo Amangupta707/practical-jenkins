@@ -35,10 +35,10 @@ pipeline {
                     set -e
                     if ! command -v trivy >/dev/null 2>&1; then
                         echo "Trivy not found, installing..."
-                        sudo apt-get update -y
-                        sudo apt-get install -y wget
+                        apt-get update -y
+                        apt-get install -y wget
                         wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.65.0_Linux-64bit.deb
-                        sudo dpkg -i trivy_0.65.0_Linux-64bit.deb
+                        dpkg -i trivy_0.65.0_Linux-64bit.deb
                     else
                         echo "Trivy is already installed."
                     fi
